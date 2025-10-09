@@ -4,66 +4,58 @@ import java.util.Arrays;
 
 public class Cart {
 
-    public Item[] contents;
-    int index;
+    private Item[] contents;
+    private int index;
 
-    Cart(Item[] _contents) {
-        this.contents = _contents;
+    public Cart(int capacity) {
+        if (capacity <= 0)
+            throw new IllegalArgumentException("Cart capacity must be positive");
+        this.contents = new Item[capacity];
+        this.index = 0;
     }
 
-    public void removeById(int itemIndex) {
-
-        if (index == 0)
-            return;
-
-        int foundItemIndex = findItemInArray(contents[itemIndex]);
-
-        if (foundItemIndex == -1)
-            return;
-
-        if (foundItemIndex == index - 1) {
-            contents[index - 1] = null;
-            index--;
-            return;
-        }
-
-        shiftArray(foundItemIndex);
+    public void add(Item item) {
+        if (isFull())
+            throw new IllegalStateException("Cart is full!");
+        contents[index++] = item;
     }
 
-    public void shiftArray(int itemIndex) {
-        for (int i = itemIndex; i < index - 1; i++) {
+    public void removeById(long itemId) {
+        int foundIndex = findItemIndexById(itemId);
+        if (foundIndex == -1)
+            return;
+
+        for (int i = foundIndex; i < index - 1; i++) {
             contents[i] = contents[i + 1];
         }
-        contents[index-1] = null;
-        index--;
+        contents[--index] = null;
     }
 
-    public int findItemInArray(Item item) {
+    private int findItemIndexById(long itemId) {
         for (int i = 0; i < index; i++) {
-            if (contents[i].id == item.id) {
+            if (contents[i].getId() == itemId)
                 return i;
-            }
         }
-
         return -1;
     }
 
-    void add(Item item) {
-        if (isCartFull())
-            return;
-
-        contents[index] = item;
-        index++;
+    public Item[] getItems() {
+        return Arrays.copyOf(contents, index);
     }
 
-    public boolean isCartFull() {
+    public boolean isFull() {
         return index == contents.length;
+    }
+
+    public int getSize() {
+        return index;
     }
 
     @Override
     public String toString() {
         return "Cart{" +
-                "contents=" + Arrays.toString(contents) +
-                '}' + "\n";
+                "contents=" + Arrays.toString(getItems()) +
+                '}';
     }
 }
+
